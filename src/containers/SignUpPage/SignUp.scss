@@ -1,0 +1,29 @@
+.containers{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    height: 100vh;
+        .box-signup{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            // box-shadow: 0 0 2px black;
+            }
+            
+        } 
+.input-signup:focus~label{
+    transform: translateY(-1rem);
+    font-size: 0.75rem;
+    transition-duration: 75ms;
+    line-height: 1rem;
+}
+@media not all and (max-width: 640px) {
+    .box-signup{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 0 2px black;
+        }
+}

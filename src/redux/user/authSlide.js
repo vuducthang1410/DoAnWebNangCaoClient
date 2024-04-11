@@ -9,14 +9,15 @@ const authSlide=createSlice({
         urlAvatar:'',
     },
     reducers:{
-        authLogin:(state,{payload})=>({
+        setAuthLogin:(state,{payload})=>({
             ...state,
             isLogin:payload.isLogin,
             userId:payload.userId,
             fullname:payload.fullname,
             urlAvatar:payload.urlAvatar
-        })
+        }),
+        getAuthLogin(){}
     }
 })
-export const {authLogin}=authSlide.actions
+export const {setAuthLogin,getAuthLogin}=authSlide.actions
 export default authSlide.reducer;

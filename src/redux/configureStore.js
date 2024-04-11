@@ -1,13 +1,13 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import  authLogin  from "./authSlide";
+import  authLogin  from "./user/authSlide";
 import createSagaMiddleware from 'redux-saga'
+import logger from "redux-logger";
+import reducer from "./reducer";
+import rootSaga from "./rootSaga";
 const sagaMiddleware= createSagaMiddleware()
-const reducer=combineReducers({
-    auth:authLogin
-})
 const store=configureStore({
-    reducer,
+    reducer:reducer,
     middleware:(getDefaultMiddleware) => getDefaultMiddleware().concat(sagaMiddleware)
 })
-// sagaMiddleware.run({})
+sagaMiddleware.run(rootSaga)
 export default store;

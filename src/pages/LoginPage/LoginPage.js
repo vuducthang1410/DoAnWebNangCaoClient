@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./LoginPage.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { getAuthLogin } from "../../redux/user/authSlide";
+import { loginRequest } from "../../redux/user/authSlide";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { url } from "../../utils";
+import WebSocketService from "../../redux/websocket/websocketService";
+import { useWebSocket } from "../../services/WebSocketContext";
+import { websocketConnected } from "../../redux/websocket/websocketSlide";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authLogin = useSelector((state) => state.authLogin);
+  const { initializeWebSocket } = useWebSocket();
+  const { websocket } = useWebSocket();
   const [user, setUser] = useState({
     username: "",
     password: "",
@@ -32,20 +39,39 @@ const LoginPage = () => {
       placeholder: "Password",
     },
   ];
+  const handlerClickLoginGoogle = async () => {
+    const response = await axios.request({
+      method: "GET",
+      url: url.url_get_google_url,
+    });
+    console.log(response.data);
+    window.location.href = response.data;
+  };
   useEffect(() => {
     console.log("da thay doi");
-    if(authLogin.isLogin===true){
+    if (authLogin.isLogin === true) {
       setTimeout(() => {
-        console.log("authLogin", authLogin);
-        navigate("/home");
-        localStorage.setItem('authLogin',JSON.stringify(authLogin))
-      }, 2000);
+        console.log("authLogin login page", authLogin);
+        const accessToken = localStorage.getItem("accessToken");
+        const urlRequest = url.url_websocket;
+        initializeWebSocket(urlRequest, accessToken);
+        localStorage.setItem("authLogin", JSON.stringify(authLogin));
+      }, 100);
+    } else {
+      const errorMessage = authLogin.error;
+      console.log("error", errorMessage);
     }
   }, [authLogin]);
+  useEffect(() => {
+    console.log("hehehehe",websocket)
+    if (authLogin.isLogin === true) navigate("/");
+  }, [websocket]);
   return (
     <div className="flex justify-center items-center bg-red-200 h-screen">
       <div className="bg-slate-700 rounded-2xl grid-cols-2 grid max-lg:grid-cols-1 box-container">
-        <nav className="bg-yellow-400 max-lg:hidden rounded-l-2xl"></nav>
+        <nav className="bg-yellow-400 max-lg:hidden rounded-l-2xl">
+          <img src="https://lh3.googleusercontent.com/a/ACg8ocJSpkWknjL8iD8FNX-UJso2naQQIuYQCtOxn7IeUUbptUeQbFeB=s96-c"></img>
+        </nav>
         <div className="bg-white flex flex-col justify-center items-center p-10 rounded-r-2xl max-lg:rounded-2xl">
           <div className="flex flex-col mr-auto mt-2 mb-5">
             <label className="font-semibold text-xl">Hello!</label>
@@ -80,8 +106,8 @@ const LoginPage = () => {
           ))}
 
           <div className="ml-auto mb-7">
-            <a href="/" className="text-violet-700 font-medium">
-              forget password?
+            <a href="/forget-password" className="text-violet-700 font-medium">
+              Forget password?
             </a>
           </div>
           <div>
@@ -89,7 +115,7 @@ const LoginPage = () => {
               className="w-72 bg-violet-600 text-white h-12 rounded-lg font-semibold text-lg"
               onClick={() => {
                 console.log("da login");
-                dispatch(getAuthLogin());
+                dispatch(loginRequest(user));
               }}
             >
               Login
@@ -102,7 +128,10 @@ const LoginPage = () => {
             </span>
             <div className="h-px bg-slate-400 w-28"></div>
           </div>
-          <button className="flex justify-center items-center  bg-violet-600 w-72 h-9 rounded-md font-bold text-base text-white m-1">
+          <button
+            onClick={handlerClickLoginGoogle}
+            className="flex justify-center items-center  bg-violet-600 w-72 h-9 rounded-md font-bold text-base text-white m-1"
+          >
             <svg
               className="h-6 w-6 mr-2"
               xmlns="http://www.w3.org/2000/svg"

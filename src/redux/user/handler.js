@@ -1,26 +1,38 @@
 import { call, put } from "redux-saga/effects";
 import requestLogin from "./request";
-import { setAuthLogin } from "./authSlide";
-import { useNavigate } from "react-router-dom";
+import {
+  loginFailure,
+  loginSuccess,
+} from "./authSlide";
 export default function* handleLogin(action) {
   try {
-    console.log(action);
-    if (action.type === "auth/getAuthLogin") {
-      const response = yield call(requestLogin);
-      console.log("response :", response.data);
-      console.log("status : ", response.data.statusCodeValue);
-      console.log("response body: ", response.data.body);
-      console.log("response body fullname: ", response.data.body.fullName);
-      yield put(
-        setAuthLogin({
-          isLogin: response.data.body.message==='Login success'?true:false,
-          userId: response.data.body.userId,
-          fullname: response.data.body.fullName,
-          urlAvatar: response.data.body.urlAvatar,
-        })
-      );
+    console.log("hehe", action);
+    if (action.type === "auth/loginRequest") {
+      const response = yield call(requestLogin, action.payload);
+      console.log("response", response);
+      console.log(response.data.data.urlAvatar)
+      if (response.data.code === 200) {
+        console.log(response.data.data.urlAvatar)
+        yield put(
+          loginSuccess({
+            isLogin:response.data.success,
+            userId: response.data.data.userId,
+            fullname: response.data.data.fullName,
+            urlAvatar: response.data.data.urlAvatar,
+            accessToken:response.data.data.accessToken
+          })
+        );
+        localStorage.setItem("accessToken",response.data.data.accessToken)
+      } else {
+        console.log("error",response.data.error)
+        yield put(
+          loginFailure({
+              error:response.data.error
+          })
+        );
+      }
     }
   } catch (error) {
-    console.log(error);
+    console.log("loi");
   }
 }
